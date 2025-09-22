@@ -1,5 +1,7 @@
 package com.mylearning.InsuranceApplication.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -79,6 +81,7 @@ public class Application {
     // Primary user applying
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference("user-applications")
     private User primarySubscriber;
 
     // Plan selected
@@ -87,6 +90,7 @@ public class Application {
     private InsurancePlan insurancePlan;
 
     // Dependents list
+    @JsonManagedReference("application-dependents")
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Dependent> dependents = new ArrayList<>();
 

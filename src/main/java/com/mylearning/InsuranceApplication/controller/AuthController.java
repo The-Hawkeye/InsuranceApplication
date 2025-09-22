@@ -34,7 +34,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public User register(@RequestBody User user) {
-        Role defaultRole = roleService.findByName("ROLE_USER")
+        Role defaultRole = roleService.findByName("ROLE_ADMIN")
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
 
         Set<Role> roles = new HashSet<>();

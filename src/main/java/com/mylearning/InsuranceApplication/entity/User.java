@@ -1,6 +1,7 @@
 package com.mylearning.InsuranceApplication.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.*;
 
@@ -17,6 +18,20 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private String email;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+
+    // One user can have many applications
+    @JsonManagedReference("user-applications")
+    @OneToMany(mappedBy = "primarySubscriber", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Application> applications = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -66,19 +81,5 @@ public class User {
         this.applications = applications;
     }
 
-    @Column(nullable = false)
-    private String email;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
-
-    // One user can have many applications
-    @OneToMany(mappedBy = "primarySubscriber", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Application> applications = new ArrayList<>();
-
-    // Getters & Setters
-    // ...
 }

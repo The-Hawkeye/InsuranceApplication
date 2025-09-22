@@ -1,8 +1,15 @@
 package com.mylearning.InsuranceApplication.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "dependents")
 public class Dependent {
 
@@ -15,6 +22,7 @@ public class Dependent {
     private String relation; // spouse, child, parent
 
     @ManyToOne
+    @JsonBackReference("application-dependents")
     @JoinColumn(name = "application_id", nullable = false)
     private Application application;
 
@@ -59,5 +67,4 @@ public class Dependent {
     public void setApplication(Application application) {
         this.application = application;
     }
-    // ...
 }

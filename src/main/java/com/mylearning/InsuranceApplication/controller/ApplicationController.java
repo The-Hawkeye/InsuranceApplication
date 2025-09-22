@@ -1,5 +1,6 @@
 package com.mylearning.InsuranceApplication.controller;
 
+import com.mylearning.InsuranceApplication.dto.ApplicationRequest;
 import com.mylearning.InsuranceApplication.entity.Application;
 import com.mylearning.InsuranceApplication.entity.User;
 import com.mylearning.InsuranceApplication.service.ApplicationService;
@@ -25,14 +26,14 @@ public class ApplicationController {
     @PostMapping
     public Application submitApplication(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody Application application) {
+            @RequestBody ApplicationRequest applicationRequest) {
 
         User user = userService.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        application.setPrimarySubscriber(user);
-        return applicationService.submitApplication(application);
+        return applicationService.submitApplication(applicationRequest, user);
     }
+
 
     @GetMapping("/my")
     public List<Application> getMyApplications(@AuthenticationPrincipal UserDetails userDetails) {
