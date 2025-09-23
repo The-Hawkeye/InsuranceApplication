@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "applications")
@@ -14,12 +15,53 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Primary user applying
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference("user-applications")
+    private User primarySubscriber;
+
+    // Plan selected
+    @ManyToOne
+    @JoinColumn(name = "plan_id", nullable = false)
+    private InsurancePlan insurancePlan;
+
+    // Dependents list
+    @JsonManagedReference("application-dependents")
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Dependent> dependents = new ArrayList<>();
+
+    // New: MedicalInfo list
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MedicalInfo> medicalInfos = new ArrayList<>();
+
+    private Double premium;
+
+    @Enumerated(EnumType.STRING)
+    private ApplicationStatus status;
+
+    private LocalDateTime submittedAt;
+
+    private LocalDateTime reviewedAt;
+
+    public enum ApplicationStatus {
+        PENDING, APPROVED, REJECTED, NEEDS_REVIEW
+    }
+
     public User getPrimarySubscriber() {
         return primarySubscriber;
     }
 
     public void setPrimarySubscriber(User primarySubscriber) {
         this.primarySubscriber = primarySubscriber;
+    }
+
+    public List<MedicalInfo> getMedicalInfos() {
+        return medicalInfos;
+    }
+
+    public void setMedicalInfos(List<MedicalInfo> medicalInfos) {
+        this.medicalInfos = medicalInfos;
     }
 
     public Long getId() {
@@ -78,34 +120,28 @@ public class Application {
         this.reviewedAt = reviewedAt;
     }
 
-    // Primary user applying
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference("user-applications")
-    private User primarySubscriber;
 
-    // Plan selected
-    @ManyToOne
-    @JoinColumn(name = "plan_id", nullable = false)
-    private InsurancePlan insurancePlan;
-
-    // Dependents list
-    @JsonManagedReference("application-dependents")
-    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Dependent> dependents = new ArrayList<>();
-
-    private Double premium;
-
-    @Enumerated(EnumType.STRING)
-    private ApplicationStatus status;
-
-    private LocalDateTime submittedAt;
-
-    private LocalDateTime reviewedAt;
-
-    public enum ApplicationStatus {
-        PENDING, APPROVED, REJECTED, NEEDS_REVIEW
+    // Convenience: get primary subscriber medical info
+    public List<MedicalInfo> getPrimarySubscriberMedicalInfos() {
+        return medicalInfos.stream()
+                .filter(mi -> mi.getDependent() == null) // only primary
+                .collect(Collectors.toList());
     }
+
+    // Convenience: get all dependents’ medical info
+    public List<MedicalInfo> getDependentsMedicalInfos() {
+        return medicalInfos.stream()
+                .filter(mi -> mi.getDependent() != null) // dependents only
+                .collect(Collectors.toList());
+    }
+
+    public MedicalInfo getPrimarySubscriberMedicalInfo() {
+        return medicalInfos.stream()
+                .filter(mi -> mi.getDependent() == null) // primary means no dependent
+                .findFirst()
+                .orElse(null);
+    }
+
 
     // Getters & Setters
     // ...

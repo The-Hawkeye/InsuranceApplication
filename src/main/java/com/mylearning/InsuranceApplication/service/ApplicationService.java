@@ -12,4 +12,5 @@ public interface ApplicationService {
     List<Application> getApplicationsByUser(User user);
     List<Application> getPendingApplications();
     Application reviewApplication(Long id, Application.ApplicationStatus status);
+    void saveApplication(Application application);
 }

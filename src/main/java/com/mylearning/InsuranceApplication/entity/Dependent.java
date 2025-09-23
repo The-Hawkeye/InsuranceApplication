@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -26,7 +29,17 @@ public class Dependent {
     @JoinColumn(name = "application_id", nullable = false)
     private Application application;
 
-    // Getters & Setters
+    @OneToMany(mappedBy = "dependent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MedicalInfo> medicalInfos = new ArrayList<>();
+
+    public List<MedicalInfo> getMedicalInfos() {
+        return medicalInfos;
+    }
+
+    public void setMedicalInfos(List<MedicalInfo> medicalInfos) {
+        this.medicalInfos = medicalInfos;
+    }
+// Getters & Setters
 
     public Long getId() {
         return id;
